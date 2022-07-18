@@ -1,6 +1,5 @@
 package com.firstapp.app.ws.ui.controller;
 
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -26,39 +25,46 @@ public class UserController {
 
 	@Autowired
 	UserService userService;
-	
-	@GetMapping(path="/{id}",produces= {MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE})
+
+	@GetMapping(path = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest getUser(@PathVariable String id) {
 		UserRest returnValue = new UserRest();
-		
-		UserDto userDto=userService.getByUserId(id);
-		BeanUtils.copyProperties(userDto,returnValue);
-		
+
+		UserDto userDto = userService.getByUserId(id);
+		BeanUtils.copyProperties(userDto, returnValue);
+
 		return returnValue;
 	}
 
-	@PostMapping(
-			consumes= {MediaType.APPLICATION_XML_VALUE,
-					MediaType.APPLICATION_JSON_VALUE
-					},
-			produces= {MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE})
+	@PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
 		UserRest returnValue = new UserRest();
 
-		if(userDetails.getFirstName().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		if (userDetails.getFirstName().isEmpty())
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDetails, userDto);
 
-		UserDto createdUser = userService.createUser(userDto);//Adding information to userDto object by service class
+		UserDto createdUser = userService.createUser(userDto);// Adding information to userDto object by service class
 		BeanUtils.copyProperties(createdUser, returnValue);
 		return returnValue;
 	}
 
-	@PutMapping
-	public String updateUser() {
-		return "updateUser was called";
+	@PutMapping(path = "/{id}", consumes = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+					MediaType.APPLICATION_JSON_VALUE })
+	public UserRest updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) {
+		UserRest returnValue = new UserRest();
+
+		if (userDetails.getFirstName().isEmpty())
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		UserDto userDto = new UserDto();
+		BeanUtils.copyProperties(userDetails, userDto);
+
+		UserDto updateUser = userService.updateUser(id,userDto);// Updating information to userDto object by service class
+		BeanUtils.copyProperties(updateUser, returnValue);
+		return returnValue;
 	}
 
 	@DeleteMapping
